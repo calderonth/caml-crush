@@ -102,6 +102,10 @@ then
 fi
 OCAMLVERSION=$(ocamlc -version)
 AC_MSG_RESULT(OCaml version is $OCAMLVERSION)
+# If OCaml version is < 4.0.2, we don't have the Bytes module: remember this
+# and adapt the makefiles
+AX_COMPARE_VERSION([$OCAMLVERSION], [lt], [4.0.2], [ocaml_with_bytes_module=no], [ocaml_with_bytes_module=yes])
+
 OCAMLLIB=$(ocamlc -where)
 AC_MSG_RESULT(OCaml library path is $OCAMLLIB)
 # checking for ocamlopt
@@ -1351,7 +1355,18 @@ else
 	AC_SUBST(caml_client_ssl_server, "")
 fi
 
-
+# Adding the Bytes modules define if necessary (some functions are deprecated and
+# generate a warning for OCaml versions >= 4.0.2)
+if test "$ocaml_with_bytes_module" == "yes"
+then
+	AC_MSG_NOTICE([OCaml has Bytes module (using it to avoid deprecated functions)])
+        AC_SUBST(ocaml_with_bytes_module, "-DOCAML_WITH_BYTES_MODULE")
+        AC_SUBST(ocaml_with_bytes_module_idl, "-D OCAML_WITH_BYTES_MODULE")
+else
+	AC_MSG_NOTICE([OCaml has not Bytes module (aliasing it as String)])
+        AC_SUBST(ocaml_with_bytes_module, "")
+        AC_SUBST(ocaml_with_bytes_module_idl, "")
+fi
 
 # Compiling with/without the filter
 if test "$with_filter" == "yes"
