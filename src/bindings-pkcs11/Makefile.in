@@ -22,7 +22,7 @@ debug:	@idl_gen@
 
 idl:	
 	@rm -f @idl_clean@
-	camlidl -header @srcdir@/pkcs11.idl
+	camlidl @ocaml_with_bytes_module_idl@ -header @srcdir@/pkcs11.idl
 	cat @srcdir@/pkcs11_stubs.c | sed -e 's/Begin_roots_block(\(.*\)).*/Begin_roots_block(\1);/g' | sed -e 's/Begin_root(\(.*\)).*/Begin_root(\1);/g' | sed -e 's/End_roots(\(.*\)).*/End_roots(\1);/g' > ./tmp
 	mv ./tmp @srcdir@/pkcs11_stubs.c
 	#Sed to patch (GetSlotList/GetMechList/FindObjects/GetObjectSize)
